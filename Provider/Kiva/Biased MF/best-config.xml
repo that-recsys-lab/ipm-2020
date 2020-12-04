@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!-- Configuration file for Kiva-Experimentation-Analysis on Provider side fairness on recommendation algos
+	 Expt 01: Biased Matrix Factorization on processed Kiva dataset-->
+
+<librec-auto>
+	<random-seed>202001</random-seed>
+	<thread-count>1</thread-count>
+	<library src="system">default-algorithms.xml</library>
+	
+	<!-- DATA SECTION -->
+	<data>
+		<data>../kiva-experimentation/data</data>
+		<format>UIR</format>
+		<data-file format="text">rating_5000_cls_hc_10core_iterative.csv</data-file>
+	</data> 
+	
+	<!-- FEATURES SECTION -->
+	<features>
+		<appender-class>net.librec.data.convertor.appender.ItemFeatureAppender</appender-class>
+		<item-feature-file>Kiva_membership_file.csv</item-feature-file>
+	</features>
+	
+	<!-- SPLITTER SECTION -->
+	<splitter>
+		<model count="3">kcv</model>
+		<dim>userfixed</dim>
+		<ratio>0.8</ratio>
+		<save>true</save>
+	</splitter>
+	
+	<!-- ALGORITHM SECTION -->
+	<!-- Using Biased Matrix Factorization for experimentation purposes. -->
+	<alg ref="alg:biasedmf">
+		<learn-rate>0.01</learn-rate>
+		<learn-rate-max>0.01</learn-rate-max>
+		<learn-rate-decay>1.0</learn-rate-decay>
+		<bold-driver>false</bold-driver>
+		<iterator-max>150</iterator-max>
+		<user-reg>
+			<value>0.5</value>
+		</user-reg>
+		<item-reg>
+			<value>0.001</value>
+		</item-reg>
+		<bias-reg>
+			<value>1</value>
+		</bias-reg>
+		<num-factors>
+			<value>150</value>
+		</num-factors>
+	</alg>
+
+	<!-- METRICS SECTION -->
+	<metric>
+		<ranking>true</ranking>
+		<list-size>10</list-size>
+		<class>net.librec.eval.ranking.StatisticalParityEvaluator,net.librec.eval.ranking.DiscountedProportionalPFairnessEvaluator,net.librec.eval.ranking.ItemCoverageEvaluator,ndcg,recall,precision</class>
+		<protected-feature>pro</protected-feature>
+	</metric>
+	
+	<!-- POST-PROCESSING SECTION -->
+	<post>
+		<script lang="python3" src="system">
+			<script-name>results_to_csv.py</script-name>
+			<param name="option">all</param>
+		</script> 
+
+		<script lang="python3" src="system">
+			<script-name>result_graphics.py</script-name>
+			<param name="browser">true</param>
+		</script> 
+	</post> 
+</librec-auto>
