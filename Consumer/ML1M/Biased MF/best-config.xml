@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!-- Configuration file for ML-Experimentation-Analysis on Provider side fairness on recommendation algos
-	 Expt 01: Biased Matrix Factorization on ML dataset-->
+<!-- Configuration file for ML1M-Experimentation-Analysis on Consumer side fairness on recommendation algos
+         Expt 01: Biased Matrix Factorization on ML1M dataset-->
 
 <librec-auto>
 	<random-seed>202001</random-seed>
@@ -9,15 +9,15 @@
 	
 	<!-- DATA SECTION -->
 	<data>
-		<data>../ML-experimentation/data</data>
+		<data-dir>../data</data-dir>
 		<format>UIR</format>
-		<data-file format="text">Veena_ML26_rating.csv</data-file>
-	</data> 
+		<data-file format="text">ratings.csv</data-file>
+	</data>
 	
-	<!-- FEATURES SECTION -->
+	<!-- FEATURES SECTION-->
 	<features>
-		<appender-class>net.librec.data.convertor.appender.ItemFeatureAppender</appender-class>
-		<item-feature-file>Veena_ML26_membership_file.csv</item-feature-file>
+		<appender-class>net.librec.data.convertor.appender.UserFeatureAppender</appender-class>
+		<user-feature-file>ML1M_membership_file2.csv</user-feature-file>
 	</features>
 	
 	<!-- SPLITTER SECTION -->
@@ -28,37 +28,37 @@
 		<save>true</save>
 	</splitter>
 	
-	<!-- ALGORITHM SECTION -->
-	<!-- Using Biased Matrix Factorization for experimentation purposes. -->
-	<alg ref="alg:biasedmf">
-		<learn-rate>0.01</learn-rate>
-		<learn-rate-max>0.01</learn-rate-max>
-		<learn-rate-decay>1.0</learn-rate-decay>
-		<bold-driver>false</bold-driver>
-		<iterator-max>15</iterator-max>
+	 <!-- ALGORITHM SECTION -->
+        <!-- Using Biased Matrix Factorization for experimentation purposes. -->
+        <alg ref="alg:biasedmf">
+                <learn-rate>0.01</learn-rate>
+                <learn-rate-max>0.01</learn-rate-max>
+                <learn-rate-decay>1.0</learn-rate-decay>
+                <bold-driver>false</bold-driver>
+                <iterator-max>25</iterator-max>
 		<user-reg>
-			<value>0.1</value>
+ 			<value>0.1</value>
 		</user-reg>
 		<item-reg>
-			<value>0.001</value>
+ 			<value>0.001</value>
 		</item-reg>
-		<bias-reg>
-			<value>1</value>
-		</bias-reg>
+ 		<bias-reg>
+                        <value>0.5</value>
+                </bias-reg>
 		<num-factors>
-			<value>50</value>
-		</num-factors>	
+			<value>200</value>
+		</num-factors>
 	</alg>
 
 	<!-- METRICS SECTION -->
 	<metric>
 		<ranking>true</ranking>
 		<list-size>10</list-size>
-		<class>net.librec.eval.ranking.StatisticalParityEvaluator,net.librec.eval.ranking.DiscountedProportionalPFairnessEvaluator,net.librec.eval.ranking.ItemCoverageEvaluator,ndcg,recall,precision</class>
-		<protected-feature>pro</protected-feature>
+		<class>ndcg,recall,precision,dpcf,net.librec.eval.fairness.CStatisticalParityEvaluator</class>			
+		<protected-feature>Gender</protected-feature>
 	</metric>
 	
-	<!-- POST-PROCESSING SECTION -->
+		<!-- POST-PROCESSING SECTION -->
 	<post>
 		<script lang="python3" src="system">
 			<script-name>results_to_csv.py</script-name>
